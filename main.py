@@ -1,5 +1,6 @@
 import random
 import tkinter
+import glob
 
 # Настройки игры
 bgcolor = '#F0F8FF'  # Цвет фона
@@ -9,6 +10,10 @@ size_of_sequence = 4  # Длина последовательности
 size_of_alphabet = 10  # Количество возможных цветов
 colors = ['red', 'orange', 'yellow', 'green', 'blue',
           'purple', 'pink', 'brown', 'magenta', 'cyan']
+count_attempts = 0  # Счетчик количества попыток
+
+
+print(glob.glob('*.dict'))
 
 
 def make_number_without_repeats(size, size_of_alphabet):
@@ -302,10 +307,30 @@ def re_guess(button, current_attempt, all_buttons):
 
 def victory(new_game_window):
     """Определяет, что происходит, если игрок догадался"""
+    global size_of_alphabet
+    global size_of_sequence
+    global count_attempts
+
     victory_window = tkinter.Tk()
-    victory_window["bg"] = bgcolor
+    victory_window['bg'] = bgcolor
     victory_window.geometry('400x150')
     victory_window.title('Победа')
+
+    f = open('save.txt', 'r')
+    all_lines = f.read().splitlines()
+    f.close()
+    f = open('save.txt', 'w')
+    if len(all_lines) >= 15:  # Чтобы в "сохраненках" было только 15 последних
+        del all_lines[0]
+    all_lines.append('Победа, попыток: {}, '
+                     'алфафвит: {}, '
+                     'длина: {}'.format(count_attempts,
+                                        size_of_alphabet,
+                                        size_of_sequence))
+    for i in all_lines:
+        f.write(i + '\n')
+    f.close()
+
     text_of_error = tkinter.Label(victory_window,  # Выводит окно с текстом
                                   text='Красавчик',
                                   bg=bgcolor,
@@ -330,10 +355,30 @@ def victory(new_game_window):
 
 def defeat(new_game_window):
     """Определяет, что происходит, если игрок не успел догадаться"""
+    global size_of_alphabet
+    global size_of_sequence
+    global count_attempts
+
     victory_window = tkinter.Tk()
     victory_window["bg"] = bgcolor
     victory_window.geometry('410x150')
-    victory_window.title('Победа')
+    victory_window.title('Поражение')
+
+    f = open('save.txt', 'r')
+    all_lines = f.read().splitlines()
+    f.close()
+    f = open('save.txt', 'w')
+    if len(all_lines) >= 15:  # Чтобы в "сохраненках" было только 15 последних
+        del all_lines[0]
+    all_lines.append('Поражение, попыток: {}, '
+                     'алфафвит: {}, '
+                     'длина: {}'.format(count_attempts,
+                                        size_of_alphabet,
+                                        size_of_sequence))
+    for i in all_lines:
+        f.write(i + '\n')
+    f.close()
+
     text_of_error = tkinter.Label(victory_window,  # Выводит окно с текстом
                                   text='Ай-ай-ай, сплошное разочарование!',
                                   bg=bgcolor,
@@ -360,6 +405,8 @@ def guess_confirm(new_game_window, current_attempt, all_buttons,
                   guessed_colors):
     """Определяет, что происходит, когда игрок нажал на "подтвердить",
     то есть когда хочет узнать, угадал или нет"""
+    global count_attempts
+    count_attempts += 1  # Увеличивает текущий счетчик попыток
     cows = 0  # Количество коров - угаданных цветов с неугаданной позицией
     bulls = 0  # Количество быков - угаданных цветов с угаданной позицией
 
@@ -400,6 +447,43 @@ def guess_confirm(new_game_window, current_attempt, all_buttons,
     if current_attempt[0] == number_of_attempts:
         # Если попытки кончились, то поражение
         defeat(new_game_window)
+
+
+def last_games():
+    """Определяет, что будет происходить при нажатии "Последние игры"
+     Показывает только последние 15"""
+    global size_of_alphabet
+    global size_of_sequence
+    global digits_will_be_repeated
+
+    main_window.withdraw()
+    last_games_window = tkinter.Tk()
+    last_games_window["bg"] = bgcolor
+    last_games_window.geometry('400x500')
+    last_games_window.title('Последние игры')
+    f = open('save.txt', 'r')
+
+    text = tkinter.Text(last_games_window,
+                        bg=bgcolor,
+                        font='Times 12'
+                        )
+    text.pack()
+    count = 1
+    for i in f:
+        text.insert(1.0, "{}) {}".format(count, i))
+        count += 1
+    f.close()
+
+    b_back = tkinter.Button(last_games_window,  # Кнопка возврата в главное меню
+                            text='Назад',
+                            bg='#E32636',
+                            fg='white',
+                            font='arial 15',
+                            command=lambda: back_to_main(last_games_window))
+    b_back.place(anchor='center',
+                 relx=0.5, rely=0.8,
+                 relwidth=0.35,
+                 relheight=0.1)
 
 
 def new_game():
@@ -512,9 +596,20 @@ b_NewGame = tkinter.Button(main_window,  # Кнопка "Начать игру"
                            font='arial 15',
                            command=new_game)
 b_NewGame.place(anchor='center',
-                relx=0.5, rely=0.2,
-                relwidth=0.4,
+                relx=0.5, rely=0.15,
+                relwidth=0.48,
                 relheight=0.1)
+
+b_LastGames = tkinter.Button(main_window,  # Кнопка "Начать игру"
+                             text='Прошлые попытки',
+                             bg='#E32636',
+                             fg='white',
+                             font='arial 15',
+                             command=last_games)
+b_LastGames.place(anchor='center',
+                  relx=0.5, rely=0.3,
+                  relwidth=0.48,
+                  relheight=0.1)
 
 b_Rules = tkinter.Button(main_window,  # Кнопка "Правила"
                          text='Правила',
@@ -523,8 +618,8 @@ b_Rules = tkinter.Button(main_window,  # Кнопка "Правила"
                          font='arial 15',
                          command=rules)
 b_Rules.place(anchor='center',
-              relx=0.5, rely=0.4,
-              relwidth=0.4,
+              relx=0.5, rely=0.45,
+              relwidth=0.48,
               relheight=0.1)
 
 b_Settings = tkinter.Button(main_window,  # Кнопка "Настройки"
@@ -535,7 +630,7 @@ b_Settings = tkinter.Button(main_window,  # Кнопка "Настройки"
                             command=settings)
 b_Settings.place(anchor='center',
                  relx=0.5, rely=0.6,
-                 relwidth=0.4,
+                 relwidth=0.48,
                  relheight=0.1)
 
 b_Quit = tkinter.Button(main_window,  # Кнопка "Настройки"
@@ -545,8 +640,8 @@ b_Quit = tkinter.Button(main_window,  # Кнопка "Настройки"
                         font='arial 15',
                         command=quit_game)
 b_Quit.place(anchor='center',
-             relx=0.5, rely=0.8,
-             relwidth=0.4,
+             relx=0.5, rely=0.75,
+             relwidth=0.48,
              relheight=0.1)
 
 main_window.mainloop()
