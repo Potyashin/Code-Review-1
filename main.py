@@ -3,8 +3,6 @@ import tkinter
 from tkinter import messagebox
 import tkinter.scrolledtext
 import glob
-import keyboard
-
 
 # Настройки игры
 bgcolor = '#F0F8FF'  # Цвет фона
