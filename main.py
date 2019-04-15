@@ -423,10 +423,10 @@ def victory(new_game_window, word='', attempts=0):
     f = open('save.txt', 'w')
     if len(all_lines) >= 15:  # Чтобы в "сохраненках" было только 15 последних
         del all_lines[0]
-    if new_game_window == 'words_window':  # Если мы играли в слова
+    if word != '':  # Если мы играли в слова
         all_lines.append('Победа, попыток: {}, '
-                         'Слово: '.format(attempts,
-                                          word))
+                         'Слово: {} '.format(attempts,
+                                             word))
     else:
         all_lines.append('Победа, попыток: {}, '  # Если играли в цвета
                          'алфафвит: {}, '
