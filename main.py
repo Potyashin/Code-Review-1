@@ -4,6 +4,9 @@ from tkinter import messagebox
 import tkinter.scrolledtext
 import glob
 
+f = open('save.txt', 'w')  # создание файла для сохранения
+f.close()
+
 # Настройки игры
 bgcolor = '#F0F8FF'  # Цвет фона
 digits_will_be_repeated = 'No'  # Наличие повторов в загаданной посл-ти цветов
