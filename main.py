@@ -4,7 +4,7 @@ from tkinter import messagebox
 import tkinter.scrolledtext
 import glob
 
-f = open('save.txt', 'w')  # создание файла для сохранения
+f = open('save.txt', 'a')  # создание файла для сохранения
 f.close()
 
 # Настройки игры
